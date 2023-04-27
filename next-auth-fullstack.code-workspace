@@ -1,0 +1,14 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "typescript.enablePromptUseWorkspaceTsdk": true,
+    "prettier.printWidth": 120,
+    "window.zoomLevel": 1,
+    "editor.wordWrapColumn": 120
+  }
+}
