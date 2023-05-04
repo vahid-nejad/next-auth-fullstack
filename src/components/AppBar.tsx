@@ -1,5 +1,6 @@
 import Link from "next/link";
 import React from "react";
+import SigninButton from "./SigninButton";
 
 const AppBar = () => {
   return (
@@ -10,6 +11,7 @@ const AppBar = () => {
       <Link className="transition-colors hover:text-blue-500" href={"/UserPost"}>
         User Post Page
       </Link>
+      <SigninButton />
     </header>
   );
 };
