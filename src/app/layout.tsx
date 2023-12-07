@@ -1,6 +1,7 @@
-import AppBar from "@/components/AppBar";
+
+import AppBar from "../components/AppBar";
+import Providers from "../components/Providers";
 import "./globals.css";
-import Providers from "@/components/Providers";
 
 export const metadata = {
   title: "Next-Auth Tutorial",

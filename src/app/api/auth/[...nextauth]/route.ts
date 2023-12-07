@@ -1,5 +1,27 @@
 import NextAuth from "next-auth/next";
 import CredentialsProvider from "next-auth/providers/credentials";
+import { z } from 'zod';
+import { PrismaClient } from '@prisma/client'; 
+import bcrypt from 'bcrypt';
+
+const prisma = new PrismaClient();
+
+
+export async function getUser(email:any) {
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        email: email,
+      },
+    });
+
+    return user;
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    throw error; 
+  }
+}
+
 const handler = NextAuth({
   providers: [
     CredentialsProvider({
@@ -10,43 +32,64 @@ const handler = NextAuth({
       // e.g. domain, username, password, 2FA token, etc.
       // You can pass any HTML attribute to the <input> tag through the object.
       credentials: {
-        username: { label: "Username", type: "text", placeholder: "jsmith" },
+        email: { label: "Username", type: "text" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials, req) {
-        // Add logic here to look up the user from the credentials supplied
-        const res = await fetch("http://localhost:3000/api/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            username: credentials?.username,
-            password: credentials?.password,
-          }),
-        });
+      async authorize(credentials) {
 
-        const user = await res.json();
-
-        if (user) {
-          // Any object returned will be saved in `user` property of the JWT
-          return user;
-        } else {
-          // If you return null then an error will be displayed advising the user to check their details.
+        const parsedCredentials = z
+          .object({ email: z.string().email(), password: z.string() })
+          .safeParse(credentials);
+          
+          if (parsedCredentials.success) {
+            const { email, password } = parsedCredentials.data;
+            const user = await getUser(email);
+            if (!user) return null;
+            console.log(user)
+          }
+          console.log('parsedCredentials',parsedCredentials)
           return null;
+        // // Add logic here to look up the user from the credentials supplied
+        // const res = await fetch("http://localhost:3000/api/login", {
+        //   method: "POST",
+        //   headers: {
+        //     "Content-Type": "application/json",
+        //   },
+        //   body: JSON.stringify({
+        //     username: credentials?.username,
+        //     password: credentials?.password,
+        //   }),
+        // });
 
-          // You can also Reject this callback with an Error thus the user will be sent to the error page with the error message as a query parameter
-        }
+        // const user = await res.json();
+
+        // if (user) {
+        //   user.name = "sakura";
+        //   return user;
+        // } else {
+
+        //   return null;
+
+          
+        // }
       },
     }),
   ],
   callbacks: {
     async jwt({ token, user }) {
-      return { ...token, ...user };
+      console.log('jwt', token);
+      if (user) {
+        token.name = user.name
+        console.log('token',token.name)
+      };
+      return { token };
     },
 
     async session({ session, token }) {
-      session.user = token as any;
+      console.log('session', session, token);
+      // session.user = token as any;
+      session.user.name = token.name;
+      // console.log('data', session.user, token.name);
       return session;
     },
   },

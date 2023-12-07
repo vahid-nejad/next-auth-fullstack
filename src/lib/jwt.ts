@@ -11,6 +11,7 @@ const DEFAULT_SIGN_OPTION: SignOption = {
 export function signJwtAccessToken(payload: JwtPayload, options: SignOption = DEFAULT_SIGN_OPTION) {
   const secret_key = process.env.SECRET_KEY;
   const token = jwt.sign(payload, secret_key!, options);
+  console.log('signJwtAccessToken', token, payload, secret_key);
   return token;
 }
 
@@ -18,6 +19,7 @@ export function verifyJwt(token: string) {
   try {
     const secret_key = process.env.SECRET_KEY;
     const decoded = jwt.verify(token, secret_key!);
+    console.log('verify jwt', token, decoded);
     return decoded as JwtPayload;
   } catch (error) {
     console.log(error);
